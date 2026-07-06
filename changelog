@@ -1,0 +1,50 @@
+
+# Changelog
+
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.0.0] — 2026-06-01
+
+Initial public release.
+
+### Added
+- OAuth2 client-credentials auth against `identity.account.f5.com`, with
+  automatic 25-minute proactive token refresh.
+- Current iHealth REST API host (`ihealth-api.f5.com`); legacy
+  `ihealth2-api.f5.com` is overridable via `IHEALTH_API_BASE`.
+- Multi-QKView analysis via the `QKVIEWS` dict.
+- Identity extraction from `diagnostics.json` (handles nested `version` dict).
+- Active licensed modules parsed from `/config/bigip.license`.
+- Provisioning module + level parsed from `/config/bigip_base.conf`
+  (`sys provision <name> { level <lvl> }` stanzas).
+- Configuration object counts from `bigip.conf` + `bigip_base.conf`
+  (LTM virtuals, pools, nodes, monitors, profiles, iRules, policies,
+  SNAT, GTM, APM access, ASM, net objects), with per-column SUM.
+- Performance metrics across 3 h / 1 d / 7 d / 30 d:
+  - CPU usage per core (multi-blade chassis aware; iterates every
+    `blade<N>cpu.xml.gz`). Math: `(sum(modes) − idle) / sum(modes) × 100`
+    via rrdtool CDEF — self-normalizing across kernel HZ.
+  - Throughput in bits/s (sum `tput_bytes_in` + `tput_bytes_out`, ×8).
+  - SSL TPS (sum `ssltotcomclient` + `ssltotnatclient`).
+  - Active connections (sum `curclientconns` + `pvacurclientconns`).
+  - Memory used in **bytes** (sum rollup `Rtmmused` + `Rotherused`).
+  - Memory used in **percent** via CDEF `(Rtmmused + Rotherused) / Rtotal × 100`.
+  - DNS requests when GTM/DNS provisioned (N/A otherwise — no fabrication).
+- Multi-sheet Excel output (openpyxl):
+  Inventory · Provisioning & License · Config Totals · Performance · Notes.
+- Source attribution on every performance row (RRD file + DS list + formula).
+- Resilience: retries on HTTP 202 (processing), 500/502/503/504, and network
+  drops with exponential backoff (3 → 60 s).
+- `--discover` mode for listing every QKView's RRD files + DS names per device
+  (use when adapting `PERF_METRICS` to a new TMOS version).
+- `--upload` mode for uploading a local `.qkview` into the API collection.
+
+### Notes
+- Performance source: BIG-IP RRD data dumped into `/var/tmp/qkview-rrd/*.xml.gz`
+  inside the qkview. Restored via `rrdtool restore`; aggregations use
+  `rrdtool graph` with `DEF`/`CDEF`/`VDEF`/`PRINT`.
+- The 2023 clouddocs `/qkviews/<id>/bigip/*` "Other Data" endpoints are 404 on
+  the current API; all device data now flows through the Files API.
