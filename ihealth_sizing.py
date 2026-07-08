@@ -434,7 +434,8 @@ def extract_config_totals(client: IHealthClient, qid: str,
                           files: List[Tuple[str, str]]) -> Dict[str, int]:
     counts = OrderedDict((k, 0) for k in CONFIG_COUNTS)
     targets = [("/config/bigip.conf", "bigip.conf"),
-               ("/config/bigip_base.conf", "bigip_base.conf")]
+               ("/config/bigip_base.conf", "bigip_base.conf"),
+               ("/config/bigip_gtm.conf","bigip_gtm.conf")]
     with tempfile.TemporaryDirectory() as td:
         for src, name in targets:
             fid = _find_file_id(files, src)
