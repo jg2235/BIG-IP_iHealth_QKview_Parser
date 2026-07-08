@@ -15,7 +15,7 @@ Data sources (current iHealth API, ihealth-api.f5.com):
   - Identity: GET /qkviews/<id>/diagnostics.json?set=hit  (system_information+version)
   - Licensing: /config/bigip.license            via Files API (octet-stream)
   - Provisioning: /config/bigip_base.conf        via Files API
-  - Config totals: /config/bigip.conf + bigip_base.conf
+  - Config totals: /config/bigip.conf + bigip_base.conf +"bigip_gtm.conf
   - Performance: /var/tmp/qkview-rrd/*.xml.gz   via Files API,
                  gunzip -> rrdtool restore -> rrdtool graph PRINT VDEF
                  (MAXIMUM from MAX RRA, AVERAGE from AVERAGE RRA, per window)
